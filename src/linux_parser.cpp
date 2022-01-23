@@ -166,11 +166,13 @@ long LinuxParser::ActiveJiffies(int pid) {
   int _, ppid, pgrp, session, tty_nr, tpgid;
   unsigned int flags;
   unsigned long minflt, cminflt, majflt, cmajflt, utime, stime;
+  long cutime, cstime;
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
       std::istringstream linestream(line);
-      linestream >> _ >> comm >> state >> ppid >> pgrp >> session >> tty_nr >> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt >> utime >> stime;
-      return utime + stime;
+      linestream >> _ >> comm >> state >> ppid >> pgrp >> session >> tty_nr >> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt >> utime >> stime >> cutime >> cstime;
+      std::cout << "AJ: " << utime << " " << stime << " " << cutime << " " << cstime << '\n';
+      return utime + stime + cutime + cstime;
     }
   }
   return 0;
@@ -384,10 +386,4 @@ long LinuxParser::UpTime(int pid) {
     }
   }
   return 0;
-}
-
-
-int main() {
-  long test = LinuxParser::UpTime(91558);
-  std::cout << test << '\n';
 }
