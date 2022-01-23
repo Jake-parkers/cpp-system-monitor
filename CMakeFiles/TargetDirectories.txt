@@ -1,3 +1,0 @@
-/home/cpp-system-monitor/CMakeFiles/rebuild_cache.dir
-/home/cpp-system-monitor/CMakeFiles/monitor.dir
-/home/cpp-system-monitor/CMakeFiles/edit_cache.dir

@@ -6,3 +6,5 @@ build/*
 *.json
 .github/**
 .idea/**
+cmake-build-debug
+CMakeFiles

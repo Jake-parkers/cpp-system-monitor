@@ -1,4 +1,0 @@
-Cannot generate into /home/kwaku/Documents/Dev/CppND-System-Monitor
-It is already used for project /home/cpp-system-monitor
-
-Please either delete it manually or select another generation directory
