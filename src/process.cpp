@@ -22,22 +22,13 @@ int Process::Pid() { return m_pid; }
 // TODO: Return this process's CPU utilization
 float Process::CpuUtilization() {
   // calculate most recent CPU utilization for a process over a period of 1 second;
-  long prev_system_uptime = LinuxParser::UpTime(); // total time the system has been up (in seconds)
-  long prev_process_uptime = LinuxParser::UpTime(m_pid); // total time elapsed since the process started
-  long prev_process_time = LinuxParser::ActiveJiffies(m_pid); // total time the process has spent with the CPU (utime, stime, cutime, cstime)
-  float prev_seconds = (float)(prev_system_uptime - (prev_process_uptime / HERTZ )); // elapsed time since process started in secs
-
+  float prev_system_uptime = LinuxParser::ActiveJiffies() / (float)HERTZ; // total time the system has been up (in seconds)
+  float prev_process_time = LinuxParser::ActiveJiffies(m_pid) / (float)HERTZ; // total time the process has spent with the CPU (utime, stime, cutime, cstime)
   sleep(1);
 
-  long system_uptime = LinuxParser::UpTime(); // total time the system has been up
-  long process_uptime = LinuxParser::UpTime(m_pid); // total time elapsed since the process started
-  long process_time = LinuxParser::ActiveJiffies(m_pid);// total time the process has spent with the CPU (utime, stime, cutime, cstime)
-  float seconds = (float)(system_uptime - (process_uptime / HERTZ )); // elapsed time since process started in secs
-
-  float process_time_secs = (float)(process_time - prev_process_time) / HERTZ;
-  float cpu_usage = (1000 * process_time_secs) / (seconds - prev_seconds);
-  string cpu_usage_str = to_string(cpu_usage / 10) + "." + to_string((int)cpu_usage % 10);
-  m_cpu_usage =  std::stof(cpu_usage_str);
+  float system_uptime = LinuxParser::ActiveJiffies() / (float)HERTZ;
+  float process_time = LinuxParser::ActiveJiffies(m_pid) / (float)HERTZ;
+  m_cpu_usage = (process_time - prev_process_time) / (float)(system_uptime - prev_system_uptime);
   return m_cpu_usage;
 }
 
@@ -71,5 +62,5 @@ long int Process::UpTime() {
 // TODO: Overload the "less than" comparison operator for Process objects
 // REMOVE: [[maybe_unused]] once you define the function
 bool Process::operator<(Process const& a) const {
-  return m_ram < a.m_ram;
+  return m_cpu_usage < a.m_cpu_usage;
 }

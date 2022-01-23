@@ -16,6 +16,8 @@ using std::string;
 using std::to_string;
 using std::vector;
 
+#define HZ sysconf(_SC_CLK_TCK)
+
 // DONE: An example of how to read data from the filesystem
 string LinuxParser::OperatingSystem() {
   string line;
@@ -126,19 +128,10 @@ long LinuxParser::Jiffies() {
   return 0;
 }
 
-void LinuxParser::validateProcess(string process_path) {
-  fs::path pid_dir {process_path };
-  if (!fs::is_directory(fs::status(pid_dir))) {
-    throw std::invalid_argument("Pid does not correspond to a valid process");
-  }
-}
-
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::ActiveJiffies(int pid) {
   string pid_stat_path= kProcDirectory + std::to_string(pid);
-  // confirm that the pid passed is valid
-  validateProcess(pid_stat_path);
 
   std::ifstream filestream (pid_stat_path + kStatFilename );
   string line, comm;
@@ -234,8 +227,6 @@ int LinuxParser::RunningProcesses() {
 // REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Command(int pid) {
   string pid_stat_path= kProcDirectory + std::to_string(pid);
-  // confirm that the pid passed is valid
-  validateProcess(pid_stat_path);
 
   std::ifstream filestream{pid_stat_path + kCmdlineFilename };
   string line;
@@ -250,8 +241,6 @@ string LinuxParser::Command(int pid) {
 // REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Ram(int pid) {
   string pid_stat_path= kProcDirectory + std::to_string(pid);
-  // confirm that the pid passed is valid
-  validateProcess(pid_stat_path);
 
   std::ifstream filestream { pid_stat_path + kStatusFilename };
   string line, key, unit;
@@ -279,8 +268,6 @@ string LinuxParser::Ram(int pid) {
 // REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Uid(int pid) {
   string pid_stat_path= kProcDirectory + std::to_string(pid);
-  // confirm that the pid passed is valid
-  validateProcess(pid_stat_path);
 
   std::ifstream filestream { pid_stat_path + kStatusFilename };
   string line, key, user;
@@ -319,8 +306,6 @@ string LinuxParser::User(int pid) {
 // REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::UpTime(int pid) {
   string pid_stat_path= kProcDirectory + std::to_string(pid);
-  // confirm that the pid passed is valid
-  validateProcess(pid_stat_path);
 
   std::ifstream filestream (pid_stat_path + kStatFilename );
   string line, comm;
@@ -333,7 +318,7 @@ long LinuxParser::UpTime(int pid) {
     while (std::getline(filestream, line)) {
       std::istringstream linestream(line);
       linestream >> _ >> comm >> state >> ppid >> pgrp >> session >> tty_nr >> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt >> utime >> stime >> cutime >> cstime >> priority >> nice >> num_threads >> itrealvalue >> starttime;
-      return starttime;
+      return starttime / HZ;
     }
   }
   return 0;
