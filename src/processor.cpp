@@ -1,6 +1,8 @@
 #include "processor.h"
 #include "linux_parser.h"
 #include <unistd.h>
+#include <iostream>
+
 // TODO: Return the aggregate CPU utilization
 float Processor::Utilization() {
   // get utilization over a 1 second period
@@ -14,6 +16,6 @@ float Processor::Utilization() {
 
   long total_diff = total - prev_total;
   long idle_diff = idle - prev_idle;
-  float cpu_percent = (total_diff - idle_diff) / total_diff;
+  float cpu_percent = (total_diff - idle_diff) / (float)total_diff;
   return cpu_percent;
 }

@@ -27,17 +27,16 @@ float Process::CpuUtilization() {
   long prev_process_uptime = LinuxParser::UpTime(m_pid); // total time elapsed since the process started
   long prev_process_time = LinuxParser::ActiveJiffies(m_pid); // total time the process has spent with the CPU (utime, stime, cutime, cstime)
   float prev_seconds = (float)(prev_system_uptime - (prev_process_uptime / HERTZ )); // elapsed time since process started in secs
-//  std:: cout << "Prev: " << prev_system_uptime << " " << prev_process_uptime << " " << prev_process_time << " " << prev_seconds << '\n';
+
   sleep(1);
+
   long system_uptime = LinuxParser::UpTime(); // total time the system has been up
   long process_uptime = LinuxParser::UpTime(m_pid); // total time elapsed since the process started
   long process_time = LinuxParser::ActiveJiffies(m_pid);// total time the process has spent with the CPU (utime, stime, cutime, cstime)
   float seconds = (float)(system_uptime - (process_uptime / HERTZ )); // elapsed time since process started in secs
 
   float process_time_secs = (float)(process_time - prev_process_time) / HERTZ;
-//  std:: cout << "Curr: " << system_uptime << " "  << process_uptime << " "  << process_time << " " << seconds << "hertz = "  << HERTZ << " " << process_time_secs << '\n';
   float cpu_usage = (1000 * process_time_secs) / (seconds - prev_seconds);
-//  std::cout << "CU: " << cpu_usage << " " << cpu_usage / 10 << "." << (int)cpu_usage % 10 << '\n';
   string cpu_usage_str = to_string(cpu_usage / 10) + "." + to_string((int)cpu_usage % 10);
   m_cpu_usage =  std::stof(cpu_usage_str);
   return m_cpu_usage;
@@ -73,5 +72,5 @@ long int Process::UpTime() {
 // TODO: Overload the "less than" comparison operator for Process objects
 // REMOVE: [[maybe_unused]] once you define the function
 bool Process::operator<(Process const& a[[maybe_unused]]) const {
-  return a.m_cpu_usage < m_cpu_usage;
+  return m_cpu_usage < a.m_cpu_usage;
 }

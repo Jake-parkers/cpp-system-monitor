@@ -60,17 +60,3 @@ int System::TotalProcesses() { return LinuxParser::TotalProcesses(); }
 
 // TODO: Return the number of seconds since the system started running
 long int System::UpTime() { return LinuxParser::UpTime(); }
-
-//int main() {
-// System sys;
-// std::cout << "Uptime = " << sys.UpTime() << "\n";
-// std::cout << "TP = " << sys.TotalProcesses() << "\n";
-// std::cout << "Running = " << sys.RunningProcesses() << "\n";
-// std::cout << "Os name = " << sys.OperatingSystem() << "\n";
-// std::cout << "Memory Util = " << sys.MemoryUtilization() << "\n";
-// std::cout << "kernel = " << sys.Kernel() << "\n";
-// auto processes = sys.Processes();
-// for (auto process: processes) {
-//   std::cout << "Process = " << process.Pid() << "\n";
-// }
-//}
