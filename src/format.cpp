@@ -17,7 +17,8 @@ string Format::ElapsedTime(long seconds) {
   hours = minutes / 60;
   minutes = minutes % 60; // remaining minutes after removing hours
   string minute_format = (minutes < 10) ? ":0" : ":";
+  string second_format = (seconds < 10) ? ":0" : ":";
   string hour_format = (hours < 10) ? "0" : "";
 
-  return hour_format + std::to_string(hours) + minute_format + std::to_string(minutes) + minute_format + std::to_string(seconds);
+  return hour_format + std::to_string(hours) + minute_format + std::to_string(minutes) + second_format + std::to_string(seconds);
 }
