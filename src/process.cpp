@@ -23,7 +23,7 @@ int Process::Pid() { return m_pid; }
 // TODO: Return this process's CPU utilization
 float Process::CpuUtilization() {
   // calculate most recent CPU utilization for a process over a period of 1 second;
-  long prev_system_uptime = LinuxParser::UpTime(); // total time the system has been up
+  long prev_system_uptime = LinuxParser::UpTime(); // total time the system has been up (in seconds)
   long prev_process_uptime = LinuxParser::UpTime(m_pid); // total time elapsed since the process started
   long prev_process_time = LinuxParser::ActiveJiffies(m_pid); // total time the process has spent with the CPU (utime, stime, cutime, cstime)
   float prev_seconds = (float)(prev_system_uptime - (prev_process_uptime / HERTZ )); // elapsed time since process started in secs
@@ -74,17 +74,4 @@ long int Process::UpTime() {
 // REMOVE: [[maybe_unused]] once you define the function
 bool Process::operator<(Process const& a[[maybe_unused]]) const {
   return a.m_cpu_usage < m_cpu_usage;
-}
-
-
-
-int main() {
-  Process p{3577};
-  float test = p.CpuUtilization();
-  std::cout << test << '\n';
-  std::cout << p.Command() << '\n';
-  std::cout << p.Command() << '\n';
-  std::cout << p.Ram() << '\n';
-  std::cout << p.User() << '\n';
-  std::cout << p.UpTime() << '\n';
 }

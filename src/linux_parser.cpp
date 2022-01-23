@@ -98,8 +98,8 @@ vector<int> LinuxParser::Pids() {
 float LinuxParser::MemoryUtilization() {
   std::ifstream filestream(kProcDirectory + kMeminfoFilename);
   string line, name, key;
-  float value;
-  std::unordered_map<string, float> mem_map;
+  long value;
+  std::unordered_map<string, long> mem_map;
   if (filestream.is_open()) {
     while(std::getline(filestream, line)) {
         std::replace(line.begin(), line.end(), ':', ' ');
@@ -110,7 +110,10 @@ float LinuxParser::MemoryUtilization() {
         if (mem_map.size() == 2) break;
     }
   }
-  return mem_map["MemTotal"] - mem_map["MemFree"];
+  float mem_util = (mem_map["MemTotal"] - mem_map["MemFree"]) / (float)mem_map["MemTotal"];
+//  std::cout << "mem_util = " << mem_util << " " << mem_util * 100 <<'\n';
+//  std::cout << mem_map["MemTotal"] << " " << mem_map["MemFree"] << " " << (float)(mem_map["MemTotal"] - mem_map["MemFree"]) / mem_map["MemTotal"];
+  return mem_util * 100;
 }
 
 // TODO: Read and return the system uptime
@@ -171,7 +174,6 @@ long LinuxParser::ActiveJiffies(int pid) {
     while (std::getline(filestream, line)) {
       std::istringstream linestream(line);
       linestream >> _ >> comm >> state >> ppid >> pgrp >> session >> tty_nr >> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt >> utime >> stime >> cutime >> cstime;
-      std::cout << "AJ: " << utime << " " << stime << " " << cutime << " " << cstime << '\n';
       return utime + stime + cutime + cstime;
     }
   }
@@ -180,42 +182,46 @@ long LinuxParser::ActiveJiffies(int pid) {
 
 // TODO: Read and return the number of active jiffies for the system
 long LinuxParser::ActiveJiffies() {
-  std::ifstream filestream(kProcDirectory + kStatFilename);
-  string line, key;
-  long user, nice, system, idle, iowait, irq, softirq, steal;
-  if (filestream.is_open()) {
-    while(std::getline(filestream, line)) {
-      std::istringstream linestream(line);
-      string needle("cpu");
-      linestream >> key;
-      // only use the aggregate value of all the cpus
-      if (key.find(needle) != string::npos) {
-        linestream >> user >> nice >> system >> idle >> iowait >> irq >> softirq >> steal;
-        return user + nice + system + irq + softirq + steal;
-      }
-    }
-  }
-  return 0;
+  auto cpu_data = LinuxParser::CpuUtilization();
+  return std::stol(cpu_data[LinuxParser::CPUStates::kUser_]) + std::stol(cpu_data[LinuxParser::CPUStates::kNice_]) + std::stol(cpu_data[LinuxParser::CPUStates::kSystem_]) + std::stol(cpu_data[LinuxParser::CPUStates::kIRQ_]) + std::stol(cpu_data[LinuxParser::CPUStates::kSoftIRQ_]) + std::stol(cpu_data[LinuxParser::CPUStates::kSteal_]);
+//  std::ifstream filestream(kProcDirectory + kStatFilename);
+//  string line, key;
+//  long user, nice, system, idle, iowait, irq, softirq, steal;
+//  if (filestream.is_open()) {
+//    while(std::getline(filestream, line)) {
+//      std::istringstream linestream(line);
+//      string needle("cpu");
+//      linestream >> key;
+//      // only use the aggregate value of all the cpus
+//      if (key.find(needle) != string::npos) {
+//        linestream >> user >> nice >> system >> idle >> iowait >> irq >> softirq >> steal;
+//        return user + nice + system + irq + softirq + steal;
+//      }
+//    }
+//  }
+//  return 0;
 }
 
 // TODO: Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() {
-  std::ifstream filestream(kProcDirectory + kStatFilename);
-  string line, key;
-  long user, nice, system, idle, iowait, irq, softirq, steal;
-  if (filestream.is_open()) {
-    while(std::getline(filestream, line)) {
-      std::istringstream linestream(line);
-      string needle("cpu");
-      linestream >> key;
-      // only use the aggregate value of all the cpus
-      if (key.find(needle) != string::npos) {
-        linestream >> user >> nice >> system >> idle >> iowait >> irq >> softirq >> steal;
-        return idle + iowait;
-      }
-    }
-  }
-  return 0;
+  auto cpu_data = LinuxParser::CpuUtilization();
+  return std::stol(cpu_data[LinuxParser::CPUStates::kIdle_]) + std::stol(cpu_data[LinuxParser::CPUStates::kIOwait_]);
+//  std::ifstream filestream(kProcDirectory + kStatFilename);
+//  string line, key;
+//  long user, nice, system, idle, iowait, irq, softirq, steal;
+//  if (filestream.is_open()) {
+//    while(std::getline(filestream, line)) {
+//      std::istringstream linestream(line);
+//      string needle("cpu");
+//      linestream >> key;
+//      // only use the aggregate value of all the cpus
+//      if (key.find(needle) != string::npos) {
+//        linestream >> user >> nice >> system >> idle >> iowait >> irq >> softirq >> steal;
+//        return idle + iowait;
+//      }
+//    }
+//  }
+//  return 0;
 }
 
 // TODO: Read and return CPU utilization
@@ -387,3 +393,7 @@ long LinuxParser::UpTime(int pid) {
   }
   return 0;
 }
+//
+//int main() {
+//  LinuxParser::MemoryUtilization();
+//}
