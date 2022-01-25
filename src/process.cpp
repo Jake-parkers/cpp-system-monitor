@@ -8,6 +8,7 @@
 #include <cmath>
 #include "process.h"
 #include "linux_parser.h"
+#include <iostream>
 
 #define HERTZ sysconf(_SC_CLK_TCK)
 using std::string;
@@ -21,13 +22,18 @@ int Process::Pid() { return m_pid; }
 
 // TODO: Return this process's CPU utilization
 float Process::CpuUtilization() {
-  // calculate most recent CPU utilization for a process over a period of 1 second;
+  // calculate most recent CPU utilization for a process over a period of 1/4th of a second;
   float prev_system_uptime = LinuxParser::ActiveJiffies() / (float)HERTZ; // total time the system has been up (in seconds)
   float prev_process_time = LinuxParser::ActiveJiffies(m_pid) / (float)HERTZ; // total time the process has spent with the CPU (utime, stime, cutime, cstime)
-  sleep(1);
+  sleep(0.25);
 
   float system_uptime = LinuxParser::ActiveJiffies() / (float)HERTZ;
   float process_time = LinuxParser::ActiveJiffies(m_pid) / (float)HERTZ;
+
+  if (system_uptime - prev_system_uptime == 0) {
+    m_cpu_usage = 0.00;
+    return m_cpu_usage;
+  }
   m_cpu_usage = (process_time - prev_process_time) / (float)(system_uptime - prev_system_uptime);
   return m_cpu_usage;
 }
@@ -61,6 +67,6 @@ long int Process::UpTime() {
 
 // TODO: Overload the "less than" comparison operator for Process objects
 // REMOVE: [[maybe_unused]] once you define the function
-bool Process::operator<(Process const& a) const {
-  return a.m_ram < m_ram;
+bool Process::operator<(Process &a) {
+  return a.CpuUtilization() < CpuUtilization();
 }

@@ -29,7 +29,7 @@ vector<Process>& System::Processes() {
   vector<int> pids = LinuxParser::Pids();
   for (auto pid: pids) {
     Process p {pid};
-    if (p.Command() == "" && p.Ram() == "") continue;
+    if (p.Command() == "" || p.Ram() == "") continue;
     else processes_.push_back(p);
   }
   std::sort(processes_.begin(), processes_.end(), [](Process &a, Process &b) { return b < a; });
