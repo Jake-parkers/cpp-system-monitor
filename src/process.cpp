@@ -25,7 +25,7 @@ float Process::CpuUtilization() {
   // calculate most recent CPU utilization for a process over a period of 1/4th of a second;
   float prev_system_uptime = LinuxParser::ActiveJiffies() / (float)HERTZ; // total time the system has been up (in seconds)
   float prev_process_time = LinuxParser::ActiveJiffies(m_pid) / (float)HERTZ; // total time the process has spent with the CPU (utime, stime, cutime, cstime)
-  sleep(0.25);
+  sleep(0.125);
 
   float system_uptime = LinuxParser::ActiveJiffies() / (float)HERTZ;
   float process_time = LinuxParser::ActiveJiffies(m_pid) / (float)HERTZ;
